@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-
 @SpringBootTest
 class AccountTransactionServiceIT {
 
@@ -21,24 +20,24 @@ class AccountTransactionServiceIT {
 
     @Test
     void testCreditTransaction() {
-        TransactionResult transaction = accountTransactionService.transaction(1L, 1000L, TransactionOperation.CREDIT, "description");
-        assertEquals(1000L, transaction.getBalance());
-        transaction = accountTransactionService.transaction(1L, 1000L, TransactionOperation.CREDIT, "description");
-        assertEquals(2000L, transaction.getBalance());
+        TransactionResult transaction = accountTransactionService.transaction(1L, 1000L, TransactionOperation.C, "description");
+        assertEquals(1000L, transaction.getSaldo());
+        transaction = accountTransactionService.transaction(1L, 1000L, TransactionOperation.C, "description");
+        assertEquals(2000L, transaction.getSaldo());
     }
 
     @Test
     void testDebitTransaction() {
-        TransactionResult transaction = accountTransactionService.transaction(3L, 1000L, TransactionOperation.DEBIT, "description");
-        assertEquals(-1000L, transaction.getBalance());
-        transaction = accountTransactionService.transaction(3L, 1000L, TransactionOperation.DEBIT, "description");
-        assertEquals(-2000L, transaction.getBalance());
+        TransactionResult transaction = accountTransactionService.transaction(3L, 1000L, TransactionOperation.D, "description");
+        assertEquals(-1000L, transaction.getSaldo());
+        transaction = accountTransactionService.transaction(3L, 1000L, TransactionOperation.D, "description");
+        assertEquals(-2000L, transaction.getSaldo());
     }
 
     @Test
     void testDebitTransactionAboveLimit() {
-        accountTransactionService.transaction(2L, 80000L, TransactionOperation.DEBIT, "description");
-        String message = assertThrows(BusinessRuleException.class, () -> accountTransactionService.transaction(2L, 1L, TransactionOperation.DEBIT, "description"))
+        accountTransactionService.transaction(2L, 80000L, TransactionOperation.D, "description");
+        String message = assertThrows(BusinessRuleException.class, () -> accountTransactionService.transaction(2L, 1L, TransactionOperation.D, "description"))
             .getMessage();
         assertEquals("Insufficient funds", message);
         Statement statement = accountTransactionService.statement(2L);

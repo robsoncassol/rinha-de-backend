@@ -15,9 +15,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class TransactionResult {
 
-    @JsonAlias("limite")
-    private Long limit;
-    @JsonAlias("saldo")
-    private Long balance;
+    private Long limite;
+    private Long saldo;
 
 }

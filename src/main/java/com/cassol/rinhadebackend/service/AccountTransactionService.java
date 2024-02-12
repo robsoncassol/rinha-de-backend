@@ -39,8 +39,8 @@ public class AccountTransactionService {
         publishNewTransactionEvent(amount, type, description, account);
 
         return TransactionResult.builder()
-            .balance(account.getBalance())
-            .limit(account.getLimit())
+            .saldo(account.getBalance())
+            .limite(account.getLimit())
             .build();
     }
 
@@ -54,10 +54,10 @@ public class AccountTransactionService {
     }
 
     private Long computeBalance(Long amount, TransactionOperation type, Account account) {
-        if (TransactionOperation.CREDIT == type) {
+        if (TransactionOperation.C == type) {
             return account.getBalance() + amount;
         }
-        if (TransactionOperation.DEBIT == type) {
+        if (TransactionOperation.D == type) {
             Long balance = account.getBalance() - amount;
             if (balance < 0 && Math.abs(balance) > account.getLimit()) {
                 throw new BusinessRuleException("Insufficient funds");

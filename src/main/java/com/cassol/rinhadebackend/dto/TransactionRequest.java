@@ -1,7 +1,6 @@
 package com.cassol.rinhadebackend.dto;
 
 import com.cassol.rinhadebackend.model.TransactionOperation;
-import com.fasterxml.jackson.annotation.JsonAlias;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -19,18 +18,16 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TransactionRequest {
-    @JsonAlias("valor")
-    @NotNull
+
+    @NotNull(message = "Valor é mandatório")
     @Min(1)
-    private Long amount;
-    @JsonAlias("tipo")
-    @NotBlank
+    private Long valor;
+    @NotBlank(message = "Tipo é mandatório")
     @NotNull
     @Size(min = 1, max = 1)
-    private TransactionOperation type;
-    @JsonAlias("descricao")
-    @NotBlank
+    private TransactionOperation tipo;
+    @NotBlank(message = "Descrição é mandatório")
     @NotNull
     @Size(min = 1, max = 10)
-    private String description;
+    private String descricao;
 }

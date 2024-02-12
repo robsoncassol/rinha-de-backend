@@ -34,24 +34,24 @@ class AccountTransactionServiceTest {
     @Test
     void testCreditTransaction() {
         Mockito.when(accountRepository.findById(1L)).thenReturn(Optional.ofNullable(Account.builder().id(1L).balance(0L).limit(10000L).build()));
-        TransactionResult result = accountTransactionService.transaction(1L, 1000L, TransactionOperation.CREDIT, "description");
+        TransactionResult result = accountTransactionService.transaction(1L, 1000L, TransactionOperation.C, "description");
         assertNotNull(result);
-        assertEquals(1000L, result.getBalance());
+        assertEquals(1000L, result.getSaldo());
     }
 
 
     @Test
     void testDebitTransaction() {
         Mockito.when(accountRepository.findById(1L)).thenReturn(Optional.ofNullable(Account.builder().id(1L).balance(0L).limit(10000L).build()));
-        TransactionResult result = accountTransactionService.transaction(1L, 1000L, TransactionOperation.DEBIT, "description");
+        TransactionResult result = accountTransactionService.transaction(1L, 1000L, TransactionOperation.D, "description");
         assertNotNull(result);
-        assertEquals(-1000L, result.getBalance());
+        assertEquals(-1000L, result.getSaldo());
     }
 
     @Test
     void testDebitTransactionAboveLimit() {
         Mockito.when(accountRepository.findById(1L)).thenReturn(Optional.ofNullable(Account.builder().id(1L).balance(0L).limit(10000L).build()));
-        String message = assertThrows(BusinessRuleException.class, () -> accountTransactionService.transaction(1L, 11000L, TransactionOperation.DEBIT, "description"))
+        String message = assertThrows(BusinessRuleException.class, () -> accountTransactionService.transaction(1L, 11000L, TransactionOperation.D, "description"))
             .getMessage();
         assertEquals("Insufficient funds", message);
     }

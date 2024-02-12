@@ -36,23 +36,3 @@ jobs:
 
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag rinha-de-backend:$(date +%s)
-
-  publish:
-    name: publish
-    on: [ push ]
-    jobs:
-    publish-docker-image:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Login to GitHub Container Registry
-    uses: docker/login-action@v1
-    with:
-    registry: ghcr.io
-    username: ${{ github.actor }}
-    password: ${{ secrets.GITHUB_TOKEN }}
-                - name: Build the docker Docker image
-    run: |
-      docker build . --tag ghcr.io/robsoncassol/rinha-de-backend:latest
-      docker run ghcr.io/robsoncassol/rinha-de-backend:latest
-      docker push ghcr.io/robsoncassol/rinha-de-backend:latest

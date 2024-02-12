@@ -18,7 +18,7 @@ public class BalanceView {
     @JsonAlias("limite")
     private Long limit;
     @JsonAlias("total")
-    private Long balance;
+    private Long amount;
     @JsonAlias("data_extrato")
     private LocalDateTime date;
 

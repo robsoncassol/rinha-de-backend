@@ -10,6 +10,7 @@ import com.cassol.rinhadebackend.repository.AccountRepository;
 import com.cassol.rinhadebackend.repository.AccountTransactionRepository;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -25,16 +26,17 @@ public class AccountTransactionService {
     private final AccountRepository accountRepository;
     private final AccountTransactionRepository accountTransactionRepository;
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public TransactionResult transaction(Long accountId, Long amount, String type, String description) {
         Optional<Account> accountOp = accountRepository.findById(accountId);
         if (accountOp.isEmpty()) {
             throw new IllegalArgumentException("Account not found");
         }
         Account account = accountOp.get();
+        account.setBalance(computeBalance(amount, type, account));
         publishNewTransaction(amount, type, description, account);
         return TransactionResult.builder()
-            .balance(computeBalance(amount, type, account))
+            .balance(account.getBalance())
             .limit(account.getLimit())
             .build();
     }
@@ -64,7 +66,7 @@ public class AccountTransactionService {
 
     public Statement statement(Long accountId) {
         Optional<Account> accountOp = accountRepository.findById(accountId);
-        if (accountOp.isPresent()) {
+        if (accountOp.isEmpty()) {
             throw new IllegalArgumentException("Account not found");
         }
         Account account = accountOp.get();
@@ -79,7 +81,7 @@ public class AccountTransactionService {
             .toList();
         return Statement.builder()
             .balance(BalanceView.builder()
-                .balance(account.getBalance())
+                .amount(account.getBalance())
                 .date(LocalDateTime.now())
                 .limit(account.getLimit())
                 .build())

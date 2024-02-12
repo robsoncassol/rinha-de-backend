@@ -35,6 +35,14 @@ class AccountTransactionServiceIT {
     }
 
     @Test
+    void testCreditAndDebitTransaction() {
+        TransactionResult transaction = accountTransactionService.transaction(4L, 1000L, TransactionOperation.C, "description");
+        assertEquals(1000L, transaction.getSaldo());
+        transaction = accountTransactionService.transaction(4L, 1000L, TransactionOperation.D, "description");
+        assertEquals(0L, transaction.getSaldo());
+    }
+
+    @Test
     void testDebitTransactionAboveLimit() {
         accountTransactionService.transaction(2L, 80000L, TransactionOperation.D, "description");
         String message = assertThrows(BusinessRuleException.class, () -> accountTransactionService.transaction(2L, 1L, TransactionOperation.D, "description"))

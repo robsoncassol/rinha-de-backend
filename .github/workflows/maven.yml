@@ -52,7 +52,7 @@ jobs:
         images: ghcr.io/rinha-de-backend
 
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag ghcr.io/rinha-de-backend:${{ steps.meta.outputs.tags }}
+      run: docker build . --file Dockerfile --tag ${{ steps.meta.outputs.tags }}
 
     - name: Docker push
-      run: docker push ghcr.io/rinha-de-backend:${{ steps.meta.outputs.tags }}
+      run: docker push

@@ -4,8 +4,11 @@ import com.cassol.rinhadebackend.dto.BalanceView;
 import com.cassol.rinhadebackend.dto.Statement;
 import com.cassol.rinhadebackend.dto.TransactionResult;
 import com.cassol.rinhadebackend.dto.TransactionView;
+import com.cassol.rinhadebackend.exceptions.BusinessRuleException;
+import com.cassol.rinhadebackend.exceptions.EntityNotFoundException;
 import com.cassol.rinhadebackend.model.Account;
 import com.cassol.rinhadebackend.model.AccountTransaction;
+import com.cassol.rinhadebackend.model.TransactionOperation;
 import com.cassol.rinhadebackend.repository.AccountRepository;
 import com.cassol.rinhadebackend.repository.AccountTransactionRepository;
 
@@ -27,21 +30,21 @@ public class AccountTransactionService {
     private final AccountTransactionRepository accountTransactionRepository;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public TransactionResult transaction(Long accountId, Long amount, String type, String description) {
-        Optional<Account> accountOp = accountRepository.findById(accountId);
-        if (accountOp.isEmpty()) {
-            throw new IllegalArgumentException("Account not found");
-        }
-        Account account = accountOp.get();
-        account.setBalance(computeBalance(amount, type, account));
-        publishNewTransaction(amount, type, description, account);
+    public TransactionResult transaction(Long accountId, Long amount, TransactionOperation type, String description) {
+        Account account = accountRepository.findById(accountId)
+            .orElseThrow(() -> new EntityNotFoundException(Account.class, accountId));
+
+        Long newBalance = computeBalance(amount, type, account);
+        account.setBalance(newBalance);
+        publishNewTransactionEvent(amount, type, description, account);
+
         return TransactionResult.builder()
             .balance(account.getBalance())
             .limit(account.getLimit())
             .build();
     }
 
-    private void publishNewTransaction(Long amount, String type, String description, Account account) {
+    private void publishNewTransactionEvent(Long amount, TransactionOperation type, String description, Account account) {
         accountTransactionRepository.save(AccountTransaction.builder()
             .account(account)
             .description(description)
@@ -50,24 +53,24 @@ public class AccountTransactionService {
             .build());
     }
 
-    private Long computeBalance(Long amount, String type, Account account) {
-        if ("C".equalsIgnoreCase(type)) {
+    private Long computeBalance(Long amount, TransactionOperation type, Account account) {
+        if (TransactionOperation.CREDIT == type) {
             return account.getBalance() + amount;
         }
-        if ("D".equalsIgnoreCase(type)) {
+        if (TransactionOperation.DEBIT == type) {
             Long balance = account.getBalance() - amount;
             if (balance < 0 && Math.abs(balance) > account.getLimit()) {
-                throw new IllegalArgumentException("Insufficient funds");
+                throw new BusinessRuleException("Insufficient funds");
             }
             return balance;
         }
-        throw new IllegalArgumentException("Invalid transaction type");
+        return account.getBalance();
     }
 
     public Statement statement(Long accountId) {
         Optional<Account> accountOp = accountRepository.findById(accountId);
         if (accountOp.isEmpty()) {
-            throw new IllegalArgumentException("Account not found");
+            throw new EntityNotFoundException(Account.class, accountId);
         }
         Account account = accountOp.get();
         List<TransactionView> transactions = accountTransactionRepository.findTop10ByAccountOrderByCreateAtDesc(account)

@@ -23,7 +23,7 @@ public class AccountTransaction {
     @Id
     @GeneratedValue
     private Long id;
-    private String type;
+    private TransactionOperation type;
     private String description;
     private Long amount;
     @CreatedDate

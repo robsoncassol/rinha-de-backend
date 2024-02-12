@@ -1,5 +1,6 @@
 package com.cassol.rinhadebackend.dto;
 
+import com.cassol.rinhadebackend.model.TransactionOperation;
 import com.fasterxml.jackson.annotation.JsonAlias;
 
 import jakarta.validation.constraints.Min;
@@ -26,7 +27,7 @@ public class TransactionRequest {
     @NotBlank
     @NotNull
     @Size(min = 1, max = 1)
-    private String type;
+    private TransactionOperation type;
     @JsonAlias("descricao")
     @NotBlank
     @NotNull

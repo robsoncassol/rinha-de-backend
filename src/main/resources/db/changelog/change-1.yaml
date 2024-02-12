@@ -1,0 +1,82 @@
+databaseChangeLog:
+  - changeSet:
+      id: createAccountTable
+      author: robsoncassol
+      changes:
+        - createTable:
+            tableName: account
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: account_limit
+                  type: bigint
+                  constraints:
+                    nullable: true
+              - column:
+                  name: balance
+                  type: bigint
+                  constraints:
+                    nullable: true
+
+  - changeSet:
+      id: createAccountTransactionTable
+      author: robsoncassol
+      changes:
+        - createTable:
+            tableName: account_transaction
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: type
+                  type: varchar(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: description
+                  type: varchar(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: amount
+                  type: bigint
+                  constraints:
+                    nullable: true
+              - column:
+                  name: createAt
+                  type: datetime
+                  constraints:
+                    nullable: true
+              - column:
+                  name: account_id
+                  type: bigint
+                  constraints:
+                    nullable: true
+        - addForeignKeyConstraint:
+            baseColumnNames: account_id
+            baseTableName: account_transaction
+            constraintName: fk_account_transaction_Account
+            referencedColumnNames: id
+            referencedTableName: account
+
+  - changeSet:
+      id: insertSampleData
+      author: robsoncassol
+      changes:
+        - sql:
+            sql:
+              INSERT INTO account (id, account_limit, balance) VALUES (1, 100000, 0);
+              INSERT INTO account (id, account_limit, balance) VALUES (2, 80000, 0);
+              INSERT INTO account (id, account_limit, balance) VALUES (3, 1000000, 0);
+              INSERT INTO account (id, account_limit, balance) VALUES (4, 10000000, 0);
+              INSERT INTO account (id, account_limit, balance) VALUES (5, 500000, 0);

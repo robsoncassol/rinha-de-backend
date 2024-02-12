@@ -55,4 +55,4 @@ jobs:
       run: docker build . --file Dockerfile --tag ${{ steps.meta.outputs.tags }}
 
     - name: Docker push
-      run: docker push ghcr.io/rinha-de-backend:${{ steps.meta.outputs.tags }}
+      run: docker push ${{ steps.meta.outputs.tags }}

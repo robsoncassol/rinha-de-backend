@@ -55,4 +55,4 @@ jobs:
       run: docker build . --file Dockerfile --tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.tags }}
 
     - name: Docker push
-      run: docker push myapp:latest ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.tags }}
+      run: docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.tags }}

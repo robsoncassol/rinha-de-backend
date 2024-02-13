@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import com.cassol.rinhadebackend.dto.TransactionResult;
 import com.cassol.rinhadebackend.exceptions.BusinessRuleException;
 import com.cassol.rinhadebackend.model.Account;
-import com.cassol.rinhadebackend.model.TransactionOperation;
 import com.cassol.rinhadebackend.repository.AccountRepository;
 import com.cassol.rinhadebackend.repository.AccountTransactionRepository;
 
@@ -30,11 +29,13 @@ class AccountTransactionServiceTest {
     private AccountRepository accountRepository;
     @Mock
     private AccountTransactionRepository accountTransactionRepository;
+    @Mock
+    private TransactionAsyncProcessor transactionAsyncProcessor;
 
     @Test
     void testCreditTransaction() {
         Mockito.when(accountRepository.findById(1L)).thenReturn(Optional.ofNullable(Account.builder().id(1L).balance(0L).limit(10000L).build()));
-        TransactionResult result = accountTransactionService.transaction(1L, 1000L, TransactionOperation.C, "description");
+        TransactionResult result = accountTransactionService.transaction(1L, 1000L, "C", "description");
         assertNotNull(result);
         assertEquals(1000L, result.getSaldo());
     }
@@ -43,7 +44,7 @@ class AccountTransactionServiceTest {
     @Test
     void testDebitTransaction() {
         Mockito.when(accountRepository.findById(1L)).thenReturn(Optional.ofNullable(Account.builder().id(1L).balance(0L).limit(10000L).build()));
-        TransactionResult result = accountTransactionService.transaction(1L, 1000L, TransactionOperation.D, "description");
+        TransactionResult result = accountTransactionService.transaction(1L, 1000L, "D", "description");
         assertNotNull(result);
         assertEquals(-1000L, result.getSaldo());
     }
@@ -51,8 +52,9 @@ class AccountTransactionServiceTest {
     @Test
     void testDebitTransactionAboveLimit() {
         Mockito.when(accountRepository.findById(1L)).thenReturn(Optional.ofNullable(Account.builder().id(1L).balance(0L).limit(10000L).build()));
-        String message = assertThrows(BusinessRuleException.class, () -> accountTransactionService.transaction(1L, 11000L, TransactionOperation.D, "description"))
-            .getMessage();
+        String message =
+            assertThrows(BusinessRuleException.class, () -> accountTransactionService.transaction(1L, 11000L, "D", "description"))
+                .getMessage();
         assertEquals("Insufficient funds", message);
     }
 

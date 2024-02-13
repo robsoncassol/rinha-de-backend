@@ -1,6 +1,7 @@
 package com.cassol.rinhadebackend.service;
 
 import com.cassol.rinhadebackend.dto.BalanceView;
+import com.cassol.rinhadebackend.dto.NewTransactionEvent;
 import com.cassol.rinhadebackend.dto.Statement;
 import com.cassol.rinhadebackend.dto.TransactionResult;
 import com.cassol.rinhadebackend.dto.TransactionView;
@@ -8,12 +9,12 @@ import com.cassol.rinhadebackend.exceptions.BusinessRuleException;
 import com.cassol.rinhadebackend.exceptions.EntityNotFoundException;
 import com.cassol.rinhadebackend.model.Account;
 import com.cassol.rinhadebackend.model.AccountTransaction;
-import com.cassol.rinhadebackend.model.TransactionOperation;
 import com.cassol.rinhadebackend.repository.AccountRepository;
 import com.cassol.rinhadebackend.repository.AccountTransactionRepository;
 
+import org.hibernate.StaleStateException;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -28,15 +29,22 @@ public class AccountTransactionService {
 
     private final AccountRepository accountRepository;
     private final AccountTransactionRepository accountTransactionRepository;
+    private final TransactionAsyncProcessor transactionAsyncProcessor;
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public TransactionResult transaction(Long accountId, Long amount, TransactionOperation type, String description) {
+    @Retryable(maxAttempts = 5, include = StaleStateException.class)
+    @Transactional
+    public TransactionResult transaction(Long accountId, Long amount, String type, String description) {
         Account account = accountRepository.findById(accountId)
             .orElseThrow(() -> new EntityNotFoundException(Account.class, accountId));
 
         Long newBalance = computeBalance(amount, type, account);
         account.setBalance(newBalance);
-        publishNewTransactionEvent(amount, type, description, account);
+        accountTransactionRepository.save(AccountTransaction.builder()
+                .description(description)
+                .accountId(account.getId())
+                .amount(amount)
+                .type(type)
+            .build());
 
         return TransactionResult.builder()
             .saldo(account.getBalance())
@@ -44,51 +52,49 @@ public class AccountTransactionService {
             .build();
     }
 
-    private void publishNewTransactionEvent(Long amount, TransactionOperation type, String description, Account account) {
-        accountTransactionRepository.save(AccountTransaction.builder()
-            .account(account)
+    private void publishNewTransactionEvent(Long amount, String type, String description, Account account) {
+        transactionAsyncProcessor.sendMessage(NewTransactionEvent.builder()
+            .accountId(account.getId())
             .description(description)
             .type(type)
             .amount(amount)
             .build());
     }
 
-    private Long computeBalance(Long amount, TransactionOperation type, Account account) {
-        if (TransactionOperation.C == type) {
+    private Long computeBalance(Long amount, String type, Account account) {
+        if ("C".equalsIgnoreCase(type)) {
             return account.getBalance() + amount;
         }
-        if (TransactionOperation.D == type) {
-            Long balance = account.getBalance() - amount;
-            if (balance < 0 && Math.abs(balance) > account.getLimit()) {
+        if ("D".equalsIgnoreCase(type)) {
+            Long newBalance = account.getBalance() - amount;
+            if (newBalance < 0 && (Math.abs(newBalance) > account.getLimit())) {
                 throw new BusinessRuleException("Insufficient funds");
             }
-            return balance;
+            return newBalance;
         }
-        return account.getBalance();
+        throw new BusinessRuleException("Invalid transaction type");
     }
 
+    @Transactional
     public Statement statement(Long accountId) {
-        Optional<Account> accountOp = accountRepository.findById(accountId);
-        if (accountOp.isEmpty()) {
-            throw new EntityNotFoundException(Account.class, accountId);
-        }
-        Account account = accountOp.get();
-        List<TransactionView> transactions = accountTransactionRepository.findTop10ByAccountOrderByCreateAtDesc(account)
+        Account account = accountRepository.findById(accountId)
+            .orElseThrow(() -> new EntityNotFoundException(Account.class, accountId));
+        List<TransactionView> transactions = accountTransactionRepository.findTop10ByAccountIdOrderByCreateAtDesc(account.getId())
             .stream()
             .map(t -> TransactionView.builder()
-                .date(t.getCreateAt())
-                .amount(t.getAmount())
-                .description(t.getDescription())
-                .type(t.getType())
+                .realizada_em(t.getCreateAt())
+                .valor(t.getAmount())
+                .descricao(t.getDescription())
+                .tipo(t.getType())
                 .build())
             .toList();
         return Statement.builder()
-            .balance(BalanceView.builder()
-                .amount(account.getBalance())
-                .date(LocalDateTime.now())
-                .limit(account.getLimit())
+            .saldo(BalanceView.builder()
+                .total(account.getBalance())
+                .data_extrato(LocalDateTime.now())
+                .limite(account.getLimit())
                 .build())
-            .transactions(transactions)
+            .ultimas_transacoes(transactions)
             .build();
     }
 }

@@ -1,10 +1,9 @@
 package com.cassol.rinhadebackend.dto;
 
-import com.cassol.rinhadebackend.model.TransactionOperation;
-
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,14 +19,16 @@ import lombok.Setter;
 public class TransactionRequest {
 
     @NotNull(message = "Valor é mandatório")
-    @Min(1)
-    private Long valor;
+    @Pattern(regexp = "^\\d{1,10}$")
+    private String valor;
     @NotBlank(message = "Tipo é mandatório")
     @NotNull
     @Size(min = 1, max = 1)
-    private TransactionOperation tipo;
-    @NotBlank(message = "Descrição é mandatório")
-    @NotNull
-    @Size(min = 1, max = 10)
+    private String tipo;
+
+    @Size.List({
+        @Size(min = 1, message = "Descricao é muito pequena"),
+        @Size(max = 10, message = "Descrião é muito longa")
+    })
     private String descricao;
 }

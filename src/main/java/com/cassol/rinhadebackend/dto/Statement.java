@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Statement {
 
-    private BalanceView balance;
-    private List<TransactionView> transactions;
+    private BalanceView saldo;
+    private List<TransactionView> ultimas_transacoes;
 
 }

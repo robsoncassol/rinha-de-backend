@@ -27,12 +27,10 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BusinessRuleException.class)
     public ResponseEntity<String> handleBusinessRuleException(BusinessRuleException ex) {
-        ProblemDetail problemDetail = ProblemDetail.forStatus(422);
-        problemDetail.setDetail(ex.getMessage());
-        return ResponseEntity.of(problemDetail).build();
+        return ResponseEntity.status(422).body(ex.getMessage());
     }
 
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public Map<String, String> handleValidationExceptions(
         MethodArgumentNotValidException ex) {

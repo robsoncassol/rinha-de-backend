@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -23,12 +23,13 @@ public class AccountTransaction {
     @Id
     @GeneratedValue
     private Long id;
-    private TransactionOperation type;
+    private String type;
     private String description;
     private Long amount;
     @CreatedDate
     private LocalDateTime createAt;
-    @ManyToOne
-    private Account account;
+    private Long accountId;
+    @Version
+    private long version;
 
 }

@@ -1,6 +1,5 @@
 package com.cassol.rinhadebackend.dto;
 
-import com.cassol.rinhadebackend.model.TransactionOperation;
 import com.fasterxml.jackson.annotation.JsonAlias;
 
 import java.time.LocalDateTime;
@@ -16,14 +15,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class TransactionView {
 
-    @JsonAlias("descricao")
-    private String description;
-    @JsonAlias("valor")
-    private Long amount;
-    @JsonAlias("tipo")
-    private TransactionOperation type;
-    @JsonAlias("realizada_em")
-    private LocalDateTime date;
+    private String descricao;
+    private Long valor;
+    private String tipo;
+    private LocalDateTime realizada_em;
 
 
 

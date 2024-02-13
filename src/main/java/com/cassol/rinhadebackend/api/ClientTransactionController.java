@@ -6,6 +6,7 @@ import com.cassol.rinhadebackend.dto.TransactionResult;
 import com.cassol.rinhadebackend.service.AccountTransactionService;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,8 +24,8 @@ public class ClientTransactionController {
     private final AccountTransactionService accountTransactionService;
 
     @PostMapping("/transacoes")
-    public ResponseEntity<TransactionResult> create(@PathVariable("id") Long id, @RequestBody TransactionRequest request) {
-        return ResponseEntity.ok(accountTransactionService.transaction(id, request.getValor(), request.getTipo(), request.getDescricao()));
+    public ResponseEntity<TransactionResult> create(@PathVariable("id") Long id, @RequestBody @Validated TransactionRequest request) {
+        return ResponseEntity.ok(accountTransactionService.transaction(id, Long.parseLong(request.getValor()), request.getTipo(), request.getDescricao()));
     }
 
     @GetMapping("/extrato")

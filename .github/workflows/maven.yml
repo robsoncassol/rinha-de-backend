@@ -48,7 +48,7 @@ jobs:
       id: meta
       uses: docker/metadata-action@96383f45573cb7f253c731d3b3ab81c87ef81934 # v5.0.0
       with:
-        images: hub.docker.com/rinha-de-backend
+        images: robsoncassol/rinha-de-backend
 
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag ${{ steps.meta.outputs.tags }}

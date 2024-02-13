@@ -51,7 +51,7 @@ jobs:
         images: robsoncassol/rinha-de-backend
 
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag ${{ steps.meta.outputs.tags }}
+      run: docker build . --file Dockerfile
 
     - name: Docker push
-      run: docker push ${{ steps.meta.outputs.tags }}
+      run: docker push

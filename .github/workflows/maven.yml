@@ -35,7 +35,7 @@ jobs:
       uses: advanced-security/maven-dependency-submission-action@571e99aab1055c2e71a1e2309b9691de18d6b7d6
 
     # Login against a Docker registry except on PR
-    # https://github.com/docker/login-action
+    # https://hub.docker.com/repository/docker/robsoncassol/rinha-de-backend/
     - name: Login to Docker Hub
       uses: docker/login-action@v3
       with:
@@ -48,10 +48,10 @@ jobs:
       id: meta
       uses: docker/metadata-action@96383f45573cb7f253c731d3b3ab81c87ef81934 # v5.0.0
       with:
-        images: ghcr.io/rinha-de-backend
+        images: hub.docker.com/robsoncassol/rinha-de-backend
 
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag ${{ steps.meta.outputs.tags }}
 
     - name: Docker push
-      run: docker push robsoncassol/rinha-de-backend:${{ steps.meta.outputs.tags }}
+      run: docker push ${{ steps.meta.outputs.tags }}

@@ -8,7 +8,6 @@ import com.cassol.rinhadebackend.dto.TransactionView;
 import com.cassol.rinhadebackend.exceptions.BusinessRuleException;
 import com.cassol.rinhadebackend.exceptions.EntityNotFoundException;
 import com.cassol.rinhadebackend.model.Account;
-import com.cassol.rinhadebackend.model.AccountTransaction;
 import com.cassol.rinhadebackend.repository.AccountRepository;
 import com.cassol.rinhadebackend.repository.AccountTransactionRepository;
 
@@ -19,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 import lombok.AllArgsConstructor;
 
@@ -39,12 +37,13 @@ public class AccountTransactionService {
 
         Long newBalance = computeBalance(amount, type, account);
         account.setBalance(newBalance);
-        accountTransactionRepository.save(AccountTransaction.builder()
-                .description(description)
-                .accountId(account.getId())
-                .amount(amount)
-                .type(type)
-            .build());
+        publishNewTransactionEvent(amount, type, description, account);
+        //        accountTransactionRepository.save(AccountTransaction.builder()
+        //                .description(description)
+        //                .accountId(account.getId())
+        //                .amount(amount)
+        //                .type(type)
+        //            .build());
 
         return TransactionResult.builder()
             .saldo(account.getBalance())

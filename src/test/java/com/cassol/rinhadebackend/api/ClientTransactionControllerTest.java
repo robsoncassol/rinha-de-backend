@@ -83,8 +83,21 @@ class ClientTransactionControllerTest {
     }
 
     @Test
+    public void testValidateTransactionInputNullDescription() throws Exception {
+        TransactionRequest request = TransactionRequest.builder()
+            .tipo("C")
+            .valor("100")
+            .build();
+        String requestBody = mapper.writeValueAsString(request);
+        mockMvc.perform(MockMvcRequestBuilders.post("/clientes/1/transacoes")
+                .content(requestBody)
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().is(422));
+    }
+
+    @Test
     public void testValidateTransactionInputDoubleAmount() throws Exception {
-        String requestBody = "{\"valor\":100.99,\"tipo\":\"C\",\"descricao\":\"Descricao\"}";
+        String requestBody = "{\"valor\":1.2,\"tipo\":\"C\",\"descricao\":\"Descricao\"}";
         mockMvc.perform(MockMvcRequestBuilders.post("/clientes/1/transacoes")
                 .content(requestBody)
                 .contentType(MediaType.APPLICATION_JSON))

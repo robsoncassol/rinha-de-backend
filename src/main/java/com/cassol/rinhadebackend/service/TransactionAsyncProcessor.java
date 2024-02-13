@@ -8,7 +8,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.concurrent.LinkedBlockingQueue;
 
+import lombok.extern.log4j.Log4j2;
+
 @Service
+@Log4j2
 public class TransactionAsyncProcessor {
 
     private final LinkedBlockingQueue<NewTransactionEvent> messageQueue = new LinkedBlockingQueue<>();
@@ -28,6 +31,7 @@ public class TransactionAsyncProcessor {
     }
 
     public void startProcessing() {
+        log.debug("Starting transaction processing");
         new Thread(() -> {
             while (!Thread.currentThread().isInterrupted()) {
                 try {

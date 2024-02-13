@@ -1,6 +1,5 @@
 package com.cassol.rinhadebackend.dto;
 
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -26,6 +25,7 @@ public class TransactionRequest {
     @Size(min = 1, max = 1)
     private String tipo;
 
+    @NotNull
     @Size.List({
         @Size(min = 1, message = "Descricao é muito pequena"),
         @Size(max = 10, message = "Descrião é muito longa")

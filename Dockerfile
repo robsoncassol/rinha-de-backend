@@ -5,7 +5,7 @@ FROM openjdk:17-jdk-slim
 WORKDIR /app
 
 # Copy the compiled Spring Boot application JAR file from the target directory to the container
-COPY target/rinha-de-backend-0.0.1-SNAPSHOT.jar app.jar
+COPY target/rinha-de-backend-*.jar app.jar
 
 # Expose the port that the Spring Boot application will run on
 EXPOSE 8080

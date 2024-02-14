@@ -11,4 +11,4 @@ COPY target/rinha-de-backend-0.0.1-SNAPSHOT.jar app.jar
 EXPOSE 8080
 
 # Command to run the Spring Boot application when the container starts
-CMD ["java", "-jar", "app.jar"]
+CMD ["java", "-jar", "-Xms128m" , "-Xmx180m", "-XX:NewSize=180m", "-XX:MaxNewSize=180m", "-XX:SurvivorRatio=12", "app.jar"]

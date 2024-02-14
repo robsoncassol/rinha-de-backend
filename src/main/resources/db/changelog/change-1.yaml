@@ -21,7 +21,7 @@ databaseChangeLog:
                   name: balance
                   type: bigint
                   constraints:
-                    nullable: true
+                    nullable: false
               - column:
                   name: version
                   type: bigint
@@ -33,37 +33,36 @@ databaseChangeLog:
             tableName: account_transaction
             columns:
               - column:
-                  name: id
-                  type: bigint
-                  autoIncrement: true
+                  name: uuid
+                  type: uuid
                   constraints:
                     primaryKey: true
                     nullable: false
               - column:
                   name: type
-                  type: varchar(255)
+                  type: varchar(1)
                   constraints:
-                    nullable: true
+                    nullable: false
               - column:
                   name: description
                   type: varchar(255)
                   constraints:
-                    nullable: true
+                    nullable: false
               - column:
                   name: amount
                   type: bigint
                   constraints:
-                    nullable: true
+                    nullable: false
               - column:
-                  name: createAt
+                  name: create_at
                   type: datetime
                   constraints:
-                    nullable: true
+                    nullable: false
               - column:
                   name: account_id
                   type: bigint
                   constraints:
-                    nullable: true
+                    nullable: false
               - column:
                   name: version
                   type: bigint
@@ -73,7 +72,18 @@ databaseChangeLog:
             constraintName: fk_account_transaction_Account
             referencedColumnNames: id
             referencedTableName: account
-
+  -  changeSet:
+       id:  transaction-create-at-index
+       author:  robsoncassol
+       changes:
+         - createIndex:
+             clustered:  true
+             columns:
+               - column:
+                   descending:  true
+                   name:  create_at
+             indexName:  idx_transaction-create-at
+             tableName:  account_transaction
   - changeSet:
       id: insertSampleData
       author: robsoncassol

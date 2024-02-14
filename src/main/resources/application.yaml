@@ -1,0 +1,29 @@
+server:
+  port: 9999
+
+# ===============================
+# DATA SOURCE
+# ===============================
+# Set here configurations for the database connection
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/rinha
+    username: rinha
+    password: rinha
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      connection-timeout: 1000
+      maximum-pool-size: 10
+      idle-timeout: 1000
+
+
+  # Allows Hibernate to generate SQL optimized for a particular DBMS
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+logging:
+  level:
+    root: info
+    com.cassol: debug

@@ -6,6 +6,8 @@ import com.cassol.rinhadebackend.repository.AccountTransactionRepository;
 
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.UUID;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import lombok.extern.log4j.Log4j2;
@@ -19,7 +21,7 @@ public class TransactionAsyncProcessor {
 
     public TransactionAsyncProcessor(AccountTransactionRepository accountTransactionRepository) {
         this.accountTransactionRepository = accountTransactionRepository;
-        startProcessing();
+//        startProcessing();
     }
 
     public void sendMessage(NewTransactionEvent message) {
@@ -46,10 +48,12 @@ public class TransactionAsyncProcessor {
 
     private void processMessage(NewTransactionEvent event) {
         accountTransactionRepository.save(AccountTransaction.builder()
+            .uuid(UUID.randomUUID())
             .description(event.getDescription())
             .amount(event.getAmount())
             .type(event.getType())
             .accountId(event.getAccountId())
+            .createAt(LocalDateTime.now())
             .build());
     }
 }

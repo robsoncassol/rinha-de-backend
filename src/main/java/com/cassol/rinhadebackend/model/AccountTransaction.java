@@ -1,11 +1,9 @@
 package com.cassol.rinhadebackend.model;
 
-import org.springframework.data.annotation.CreatedDate;
-
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
@@ -13,7 +11,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Entity
+@Entity(name = "account_transaction")
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -21,12 +19,10 @@ import lombok.NoArgsConstructor;
 public class AccountTransaction {
 
     @Id
-    @GeneratedValue
-    private Long id;
+    private UUID uuid;
     private String type;
     private String description;
     private Long amount;
-    @CreatedDate
     private LocalDateTime createAt;
     private Long accountId;
     @Version

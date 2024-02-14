@@ -5,11 +5,13 @@ import com.cassol.rinhadebackend.exceptions.EntityNotFoundException;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -49,7 +51,13 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({Exception.class})
     public ResponseEntity<String> handleNoHandlerFoundException(
         Exception ex, HttpServletRequest httpServletRequest) {
-        log.debug("No handler found for request = {}", httpServletRequest.getRequestURI());
+        log.debug("No handler found for request = {} exception={} msg={}", httpServletRequest.getRequestURI(), ex.getClass(),  ex.getMessage());
+        if(ex instanceof NoResourceFoundException){
+            return ResponseEntity.unprocessableEntity().body(ex.getMessage());
+        }
+        if(ex instanceof ObjectOptimisticLockingFailureException){
+            return ResponseEntity.internalServerError().build();
+        }
         return ResponseEntity.unprocessableEntity().body(ex.getMessage());
     }
 

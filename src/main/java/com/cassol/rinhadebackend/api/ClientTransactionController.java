@@ -28,8 +28,16 @@ public class ClientTransactionController {
     public ResponseEntity<TransactionResult> create(@PathVariable("id") String id, @RequestBody @Validated TransactionRequest request) {
         return ResponseEntity.ok(accountTransactionService.transaction(parseIdToLong(id),
             Long.parseLong(request.getValor()),
-            request.getTipo(),
+            validateType(request),
             request.getDescricao()));
+    }
+
+    private String validateType(TransactionRequest request) {
+        String tipo = request.getTipo();
+        if ("C".equalsIgnoreCase(tipo) || "D".equalsIgnoreCase(tipo)) {
+            return tipo;
+        }
+        throw new BusinessRuleException("Tipo é inválido");
     }
 
     private Long parseIdToLong(String valor) {

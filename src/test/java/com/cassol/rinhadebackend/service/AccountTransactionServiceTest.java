@@ -9,12 +9,15 @@ import com.cassol.rinhadebackend.exceptions.BusinessRuleException;
 import com.cassol.rinhadebackend.model.Account;
 import com.cassol.rinhadebackend.repository.AccountRepository;
 import com.cassol.rinhadebackend.repository.AccountTransactionRepository;
+import com.cassol.rinhadebackend.transaction.TransactionTaskRunner;
+import com.cassol.rinhadebackend.transaction.TransactionTaskRunnerMock;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
@@ -31,6 +34,8 @@ class AccountTransactionServiceTest {
     private AccountTransactionRepository accountTransactionRepository;
     @Mock
     private TransactionAsyncProcessor transactionAsyncProcessor;
+    @Spy
+    private TransactionTaskRunner transactionTaskRunner = new TransactionTaskRunnerMock();
 
     @Test
     void testCreditTransaction() {

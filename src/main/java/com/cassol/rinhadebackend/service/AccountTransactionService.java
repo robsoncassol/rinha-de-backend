@@ -11,12 +11,10 @@ import com.cassol.rinhadebackend.model.Account;
 import com.cassol.rinhadebackend.model.AccountTransaction;
 import com.cassol.rinhadebackend.repository.AccountRepository;
 import com.cassol.rinhadebackend.repository.AccountTransactionRepository;
+import com.cassol.rinhadebackend.transaction.TransactionTaskRunner;
 
-import org.hibernate.StaleStateException;
-import org.springframework.orm.ObjectOptimisticLockingFailureException;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -24,38 +22,38 @@ import java.util.List;
 import java.util.UUID;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 
 @Service
 @AllArgsConstructor
+@Log4j2
 public class AccountTransactionService {
 
     private final AccountRepository accountRepository;
     private final AccountTransactionRepository accountTransactionRepository;
     private final TransactionAsyncProcessor transactionAsyncProcessor;
+    private final TransactionTaskRunner transactionTaskRunner;
 
-    @Retryable(maxAttempts = 5,
-        retryFor = {StaleStateException.class, ObjectOptimisticLockingFailureException.class},
-        backoff = @Backoff(delay = 100, multiplier = 2))
-    @Transactional
+    @Transactional(propagation = Propagation.NEVER)
     public TransactionResult transaction(Long accountId, Long amount, String type, String description) {
-        Account account = accountRepository.findById(accountId)
-            .orElseThrow(() -> new EntityNotFoundException(Account.class, accountId));
-
-        Long newBalance = computeBalance(amount, type, account);
-        account.setBalance(newBalance);
-        //        publishNewTransactionEvent(amount, type, description, account);
-        accountTransactionRepository.save(AccountTransaction.builder()
-            .uuid(UUID.randomUUID())
-            .description(description)
-            .accountId(account.getId())
-            .amount(amount)
-            .createAt(LocalDateTime.now())
-            .type(type)
-            .build());
-
+        Account modiedAccount = transactionTaskRunner.readWriteAndGet(() -> {
+            Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new EntityNotFoundException(Account.class, accountId));
+            account.setBalance(computeBalance(amount, type, account));
+            accountRepository.save(account);
+            accountTransactionRepository.save(AccountTransaction.builder()
+                .uuid(UUID.randomUUID())
+                .description(description)
+                .accountId(accountId)
+                .amount(amount)
+                .createAt(LocalDateTime.now())
+                .type(type)
+                .build());
+            return account;
+        });
         return TransactionResult.builder()
-            .saldo(account.getBalance())
-            .limite(account.getLimit())
+            .saldo(modiedAccount.getBalance())
+            .limite(modiedAccount.getLimit())
             .build();
     }
 
@@ -82,26 +80,27 @@ public class AccountTransactionService {
         throw new BusinessRuleException("Invalid transaction type");
     }
 
-    @Transactional
     public Statement statement(Long accountId) {
-        Account account = accountRepository.findById(accountId)
-            .orElseThrow(() -> new EntityNotFoundException(Account.class, accountId));
-        List<TransactionView> transactions = accountTransactionRepository.findTop10ByAccountIdOrderByCreateAtDesc(account.getId())
-            .stream()
-            .map(t -> TransactionView.builder()
-                .realizada_em(t.getCreateAt())
-                .valor(t.getAmount())
-                .descricao(t.getDescription())
-                .tipo(t.getType())
-                .build())
-            .toList();
-        return Statement.builder()
-            .saldo(BalanceView.builder()
-                .total(account.getBalance())
-                .data_extrato(LocalDateTime.now())
-                .limite(account.getLimit())
-                .build())
-            .ultimas_transacoes(transactions)
-            .build();
+        return transactionTaskRunner.readOnlyAndGet(() -> {
+            Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new EntityNotFoundException(Account.class, accountId));
+            List<TransactionView> transactions = accountTransactionRepository.findTop10ByAccountIdOrderByCreateAtDesc(account.getId())
+                .stream()
+                .map(t -> TransactionView.builder()
+                    .realizada_em(t.getCreateAt())
+                    .valor(t.getAmount())
+                    .descricao(t.getDescription())
+                    .tipo(t.getType())
+                    .build())
+                .toList();
+            return Statement.builder()
+                .saldo(BalanceView.builder()
+                    .total(account.getBalance())
+                    .data_extrato(LocalDateTime.now())
+                    .limite(account.getLimit())
+                    .build())
+                .ultimas_transacoes(transactions)
+                .build();
+        });
     }
 }

@@ -21,7 +21,7 @@ public class TransactionAsyncProcessor {
 
     public TransactionAsyncProcessor(AccountTransactionRepository accountTransactionRepository) {
         this.accountTransactionRepository = accountTransactionRepository;
-//        startProcessing();
+        startProcessing();
     }
 
     public void sendMessage(NewTransactionEvent message) {
@@ -37,10 +37,10 @@ public class TransactionAsyncProcessor {
         new Thread(() -> {
             while (!Thread.currentThread().isInterrupted()) {
                 try {
-                    NewTransactionEvent event = messageQueue.take(); // Remove a mensagem da fila (espera se estiver vazia)
+                    NewTransactionEvent event = messageQueue.take();
                     processMessage(event);
                 } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt(); // Restaura o status interrompido
+                    Thread.currentThread().interrupt();
                 }
             }
         }).start();

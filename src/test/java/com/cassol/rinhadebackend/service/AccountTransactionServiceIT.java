@@ -42,7 +42,7 @@ class AccountTransactionServiceIT {
     }
 
     @Test
-    void testDebitTransactionAboveLimit() {
+    void testDebitTransactionAboveLimit() throws InterruptedException {
         accountTransactionService.transaction(2L, 80000L, "D", "description");
         String message = assertThrows(BusinessRuleException.class, () -> accountTransactionService.transaction(2L, 1L, "D", "description"))
             .getMessage();

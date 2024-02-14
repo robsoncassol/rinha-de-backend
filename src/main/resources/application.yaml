@@ -13,7 +13,7 @@ spring:
     driver-class-name: org.postgresql.Driver
     hikari:
       connection-timeout: 2000
-      maximum-pool-size: 25
+      maximum-pool-size: 6
       idle-timeout: 8000
 
 

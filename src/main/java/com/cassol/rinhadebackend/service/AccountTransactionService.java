@@ -37,7 +37,7 @@ public class AccountTransactionService {
     @Transactional(propagation = Propagation.NEVER)
     public TransactionResult transaction(Long accountId, Long amount, String type, String description) {
         Account modiedAccount = transactionTaskRunner.readWriteAndGet(() -> {
-            Account account = accountRepository.findById(accountId)
+            Account account = accountRepository.findByIdAndLock(accountId)
                 .orElseThrow(() -> new EntityNotFoundException(Account.class, accountId));
             account.setBalance(computeBalance(amount, type, account));
             accountRepository.save(account);

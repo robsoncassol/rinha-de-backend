@@ -21,7 +21,7 @@ public class TransactionAsyncProcessor {
 
     public TransactionAsyncProcessor(AccountTransactionRepository accountTransactionRepository) {
         this.accountTransactionRepository = accountTransactionRepository;
-        startProcessing();
+//        startProcessing();
     }
 
     public void sendMessage(NewTransactionEvent message) {

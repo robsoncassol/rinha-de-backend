@@ -39,7 +39,7 @@ class AccountTransactionServiceTest {
 
     @Test
     void testCreditTransaction() {
-        Mockito.when(accountRepository.findById(1L)).thenReturn(Optional.ofNullable(Account.builder().id(1L).balance(0L).limit(10000L).build()));
+        Mockito.when(accountRepository.findByIdAndLock(1L)).thenReturn(Optional.ofNullable(Account.builder().id(1L).balance(0L).limit(10000L).build()));
         TransactionResult result = accountTransactionService.transaction(1L, 1000L, "C", "description");
         assertNotNull(result);
         assertEquals(1000L, result.getSaldo());
@@ -48,7 +48,7 @@ class AccountTransactionServiceTest {
 
     @Test
     void testDebitTransaction() {
-        Mockito.when(accountRepository.findById(1L)).thenReturn(Optional.ofNullable(Account.builder().id(1L).balance(0L).limit(10000L).build()));
+        Mockito.when(accountRepository.findByIdAndLock(1L)).thenReturn(Optional.ofNullable(Account.builder().id(1L).balance(0L).limit(10000L).build()));
         TransactionResult result = accountTransactionService.transaction(1L, 1000L, "D", "description");
         assertNotNull(result);
         assertEquals(-1000L, result.getSaldo());
@@ -56,7 +56,7 @@ class AccountTransactionServiceTest {
 
     @Test
     void testDebitTransactionAboveLimit() {
-        Mockito.when(accountRepository.findById(1L)).thenReturn(Optional.ofNullable(Account.builder().id(1L).balance(0L).limit(10000L).build()));
+        Mockito.when(accountRepository.findByIdAndLock(1L)).thenReturn(Optional.ofNullable(Account.builder().id(1L).balance(0L).limit(10000L).build()));
         String message =
             assertThrows(BusinessRuleException.class, () -> accountTransactionService.transaction(1L, 11000L, "D", "description"))
                 .getMessage();

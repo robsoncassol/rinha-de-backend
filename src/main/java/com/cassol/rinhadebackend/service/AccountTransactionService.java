@@ -13,6 +13,8 @@ import com.cassol.rinhadebackend.repository.AccountRepository;
 import com.cassol.rinhadebackend.repository.AccountTransactionRepository;
 
 import org.hibernate.StaleStateException;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,7 +33,9 @@ public class AccountTransactionService {
     private final AccountTransactionRepository accountTransactionRepository;
     private final TransactionAsyncProcessor transactionAsyncProcessor;
 
-    @Retryable(maxAttempts = 5, include = StaleStateException.class, backoff = @org.springframework.retry.annotation.Backoff(delay = 100, multiplier = 2))
+    @Retryable(maxAttempts = 5,
+        retryFor = {StaleStateException.class, ObjectOptimisticLockingFailureException.class},
+        backoff = @Backoff(delay = 100, multiplier = 2))
     @Transactional
     public TransactionResult transaction(Long accountId, Long amount, String type, String description) {
         Account account = accountRepository.findById(accountId)
@@ -39,14 +43,14 @@ public class AccountTransactionService {
 
         Long newBalance = computeBalance(amount, type, account);
         account.setBalance(newBalance);
-//        publishNewTransactionEvent(amount, type, description, account);
+        //        publishNewTransactionEvent(amount, type, description, account);
         accountTransactionRepository.save(AccountTransaction.builder()
-                .uuid(UUID.randomUUID())
-                .description(description)
-                .accountId(account.getId())
-                .amount(amount)
-                .createAt(LocalDateTime.now())
-                .type(type)
+            .uuid(UUID.randomUUID())
+            .description(description)
+            .accountId(account.getId())
+            .amount(amount)
+            .createAt(LocalDateTime.now())
+            .type(type)
             .build());
 
         return TransactionResult.builder()

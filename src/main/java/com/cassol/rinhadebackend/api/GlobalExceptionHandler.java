@@ -2,7 +2,7 @@ package com.cassol.rinhadebackend.api;
 
 import com.cassol.rinhadebackend.exceptions.BusinessRuleException;
 import com.cassol.rinhadebackend.exceptions.EntityNotFoundException;
-
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -15,11 +15,7 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 import java.util.HashMap;
 import java.util.Map;
 
-import jakarta.servlet.http.HttpServletRequest;
-import lombok.extern.log4j.Log4j2;
-
 @ControllerAdvice
-@Log4j2
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(EntityNotFoundException.class)
@@ -51,7 +47,7 @@ public class GlobalExceptionHandler {
         if (ex instanceof NoResourceFoundException) {
             return ResponseEntity.unprocessableEntity().body(ex.getMessage());
         }
-        log.debug("request = {} exception={} msg={}", httpServletRequest.getRequestURI(), ex.getClass(), ex.getMessage());
+//        log.debug("request = {} exception={} msg={}", httpServletRequest.getRequestURI(), ex.getClass(), ex.getMessage());
         return ResponseEntity.internalServerError().body(ex.getMessage());
     }
 

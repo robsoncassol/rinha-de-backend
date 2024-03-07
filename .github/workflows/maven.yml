@@ -42,7 +42,7 @@ jobs:
       run:  mvn -Pnative spring-boot:build-image
 
     - name: rename docker image
-      run: docker image tag rinha-de-backend:master robsoncassol/rinha-de-backend/master
+      run: docker image tag rinha-de-backend:master robsoncassol/rinha-de-backend:latest
 
     - name: Docker push
-      run: docker push robsoncassol/rinha-de-backend:master
+      run: docker push robsoncassol/rinha-de-backend:latest

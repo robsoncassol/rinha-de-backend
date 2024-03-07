@@ -16,8 +16,6 @@ spring:
       maximum-pool-size: 6
       idle-timeout: 8000
 
-
-
   # Allows Hibernate to generate SQL optimized for a particular DBMS
   jpa:
     properties:

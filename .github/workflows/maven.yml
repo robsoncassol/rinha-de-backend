@@ -50,11 +50,11 @@ jobs:
       with:
         images: robsoncassol/rinha-de-backend
 
-   - name: Build the Docker image
-     run: docker build . --file Dockerfile --tag ${{ steps.meta.outputs.tags }}
+    - name: Build the Docker image
+      run:  mvn -Pnative spring-boot:build-image
 
-    # - name: Build the Docker image
-    #   run:  mvn -Pnative spring-boot:build-image
+    - name: rename docker image
+      run: docker image tag rinha-de-backend:${{ steps.meta.outputs.tags }} robsoncassol/rinha-de-backend/${{ steps.meta.outputs.tags }}
 
     - name: Docker push
-      run: docker push ${{ steps.meta.outputs.tags }}
+      run: docker push robsoncassol/rinha-de-backend:${{ steps.meta.outputs.tags }}

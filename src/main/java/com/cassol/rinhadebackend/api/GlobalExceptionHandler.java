@@ -3,6 +3,7 @@ package com.cassol.rinhadebackend.api;
 import com.cassol.rinhadebackend.exceptions.BusinessRuleException;
 import com.cassol.rinhadebackend.exceptions.EntityNotFoundException;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -16,10 +17,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.extern.log4j.Log4j2;
 
 @ControllerAdvice
-@Log4j2
+@Slf4j
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(EntityNotFoundException.class)

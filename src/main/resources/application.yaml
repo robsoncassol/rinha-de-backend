@@ -13,10 +13,8 @@ spring:
     username: rinha
     password: rinha
     driver-class-name: org.postgresql.Driver
-    hikari:
-      connection-timeout: 2000
-      maximum-pool-size: 6
-      idle-timeout: 8000
+    hikari:      
+      maximum-pool-size: 15
 
   # Allows Hibernate to generate SQL optimized for a particular DBMS
   jpa:

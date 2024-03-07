@@ -33,8 +33,8 @@ databaseChangeLog:
             tableName: account_transaction
             columns:
               - column:
-                  name: uuid
-                  type: uuid
+                  name: id
+                  type: serial
                   constraints:
                     primaryKey: true
                     nullable: false

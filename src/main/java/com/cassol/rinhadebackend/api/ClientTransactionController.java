@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.AllArgsConstructor;
+import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("/clientes/{id}")
@@ -25,11 +26,11 @@ public class ClientTransactionController {
     private final AccountTransactionService accountTransactionService;
 
     @PostMapping("/transacoes")
-    public ResponseEntity<TransactionResult> create(@PathVariable("id") String id, @RequestBody @Validated TransactionRequest request) {
-        return ResponseEntity.ok(accountTransactionService.transaction(parseIdToLong(id),
-            Long.parseLong(request.getValor()),
-            validateType(request),
-            request.getDescricao()));
+    public Mono<TransactionResult> create(@PathVariable("id") String id, @RequestBody @Validated TransactionRequest request) {
+        return Mono.just(accountTransactionService.transaction(parseIdToLong(id),
+                Long.parseLong(request.getValor()),
+                validateType(request),
+                request.getDescricao()));
     }
 
     private String validateType(TransactionRequest request) {
@@ -49,8 +50,8 @@ public class ClientTransactionController {
     }
 
     @GetMapping("/extrato")
-    public ResponseEntity<Statement> getStatement(@PathVariable("id") String id) {
-        return ResponseEntity.ok(accountTransactionService.statement(parseIdToLong(id)));
+    public Mono<Statement> getStatement(@PathVariable("id") String id) {
+        return Mono.just(accountTransactionService.statement(parseIdToLong(id)));
     }
 
 }

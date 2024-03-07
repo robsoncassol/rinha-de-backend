@@ -1,6 +1,8 @@
 server:
   port: 9999
 
+liquibase:
+  enabled: false
 # ===============================
 # DATA SOURCE
 # ===============================
